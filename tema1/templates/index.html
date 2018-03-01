@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>Hello, world!</title>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
+  </head>
+  <body>
+  <div class="container">
+  <table class="table table-hover">
+    <thead>
+      <tr>
+        <th>hash</th>
+        <th>Hybrid Analysis</th>
+        <th>Virus Total</th>
+        <th>URL</th>
+      </tr>
+    </thead>
+    <tbody>
+        {% for hash in input_dict -%}
+          <tr>
+            <td>{{hash}}</td>
+            <td>{{input_dict[hash]["hybrid_analysis"]}}</td>
+            <td>{{input_dict[hash]["virustotal"]}}</td>
+            <td>
+				<button type="button" class="btn btn-default" aria-label="Left Align">
+  					<a href="{{input_dict[hash]['url']}}">Download</span>
+				</button></td>
+          </tr>
+        {% endfor -%}
+    </tbody>
+  </table>
+
+</html>

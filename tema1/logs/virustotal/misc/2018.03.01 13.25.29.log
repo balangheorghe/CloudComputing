@@ -1,0 +1,8 @@
+[2018-03-01 13:25:29,290]-Received: {'checkip.dyndns.org', '216.146.38.70'}
+[2018-03-01 13:25:29,291]-Making the scan request for item: checkip.dyndns.org
+[2018-03-01 13:25:29,894]-Response: {'permalink': 'https://www.virustotal.com/url/e36c215a44e952a51829668cfd60576e4f56942bf499c150dc4b0d25f7b96544/analysis/1519903530/', 'resource': 'http://checkip.dyndns.org/', 'url': 'http://checkip.dyndns.org/', 'response_code': 1, 'scan_date': '2018-03-01 11:25:30', 'scan_id': 'e36c215a44e952a51829668cfd60576e4f56942bf499c150dc4b0d25f7b96544-1519903530', 'verbose_msg': 'Scan request successfully queued, come back later for the report'}
+[2018-03-01 13:25:29,894]-Sleeping for 30 seconds...
+[2018-03-01 13:26:03,836]-Received: {'checkip.dyndns.org', '216.146.38.70'}
+[2018-03-01 13:26:03,840]-Making the scan request for item: checkip.dyndns.org
+[2018-03-01 13:26:04,385]-Response: {'permalink': 'https://www.virustotal.com/url/e36c215a44e952a51829668cfd60576e4f56942bf499c150dc4b0d25f7b96544/analysis/1519903530/', 'resource': 'http://checkip.dyndns.org/', 'url': 'http://checkip.dyndns.org/', 'response_code': 1, 'scan_date': '2018-03-01 11:25:30', 'scan_id': 'e36c215a44e952a51829668cfd60576e4f56942bf499c150dc4b0d25f7b96544-1519903530', 'verbose_msg': 'Scan request successfully queued, come back later for the report'}
+[2018-03-01 13:26:04,386]-Sleeping for 30 seconds...

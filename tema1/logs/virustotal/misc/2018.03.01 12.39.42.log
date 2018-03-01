@@ -1,0 +1,4 @@
+[2018-03-01 12:39:42,686]-Received: {'http://www.virustotal.com'}
+[2018-03-01 12:39:42,687]-Making the scan request for item: http://www.virustotal.com
+[2018-03-01 12:39:43,455]-Response: {'permalink': 'https://www.virustotal.com/url/1db0ad7dbcec0676710ea0eaacd35d5e471d3e11944d53bcbd31f0cbd11bce31/analysis/1519900469/', 'resource': 'http://www.virustotal.com/', 'url': 'http://www.virustotal.com/', 'response_code': 1, 'scan_date': '2018-03-01 10:34:29', 'scan_id': '1db0ad7dbcec0676710ea0eaacd35d5e471d3e11944d53bcbd31f0cbd11bce31-1519900469', 'verbose_msg': 'Scan request successfully queued, come back later for the report'}
+[2018-03-01 12:39:43,456]-Sleeping for 30 seconds...
