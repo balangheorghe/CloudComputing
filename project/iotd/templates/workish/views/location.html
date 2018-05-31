@@ -1,0 +1,723 @@
+{% extends "base2.html" %}
+
+{% block extra_css %}
+
+        <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+        <meta charset="utf-8">
+        <!-- jQuery library -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-social/5.1.1/bootstrap-social.css">
+
+        <script>
+            var map, infoWindow;
+            var origin = {lat: -34.397, lng: 150.644};
+            var origin2;
+        </script>
+        <style>
+            /* Always set the map height explicitly to define the size of the div
+            * element that contains the map. */
+            #map {
+                height: 100%;
+            }
+            /* Optional: Makes the sample page fill the window. */
+            html, body {
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+        </style>
+{% endblock %}
+{% block content %}
+
+        <div id="map" style="max-height: 80%;"></div>
+        <div id="infowindow-content" class="hidden">
+            <img id="place-icon" src="" height="16" width="16"><br>
+            <span id="place-name"  class="title"></span><br>
+            <span id="place-address"></span>
+        </div>
+        <!--
+<ul class="list-group" style="max-height: 80%; max-width: 25%; /*margin-left: auto; margin-right: 0; top: -15px;*/">
+<li class="list-group-item">Pisi</li>
+</ul>
+-->
+
+        <!-- Modals -->
+        <!-- ----------------- -->
+        <!-- Modal -->
+
+
+        <!-- End of Modals -->
+
+
+        <!-- Scripts -->
+        <!-- ----------------- -->
+        <script>
+            $('#sharingLocationButton').change(async function() {
+                while ($(this).prop('checked') == true)
+                {
+                    navigator.geolocation.getCurrentPosition(function(position) {
+                        pos = {
+                            lat: position.coords.latitude,
+                            lng: position.coords.longitude
+                        };
+                        // console.log(pos)
+                        data = {location : pos}
+                        $.ajax({
+                            type: 'put',
+                            url: '../api/set_location/' + getUsername(),
+                            data: JSON.stringify(data),
+                            processData:false,
+                        });
+
+                    }
+                                                            )
+                    await sleep(10000);
+                }
+            })
+
+            function sleep(ms) {
+                return new Promise(resolve => setTimeout(resolve, ms));
+            }
+
+            async function sharinglocation() {
+                while (true)
+                {
+                    console.log('Taking a break...');
+                    await sleep(30000);
+                    console.log('30 second later');
+                }
+            }
+
+            function setUsername(usernameInput)
+            {
+                var div = document.getElementById("usernameValue")
+                div.innerHTML = usernameInput;
+            }
+            $(document).ready(function() {
+                $.ajax({
+                    type: 'get',
+                    url: '/api/plugins',
+                    processData:false,
+                    success:function(data)
+                    {
+                        var result = '';
+                        data = JSON.parse(data)
+                        data = data['data']
+                        for (x in data){
+                            result += '<option>' + data[x].name + '</option>'
+                        }
+                        var div = document.getElementById("selection1")
+                        div.innerHTML = result
+
+                    },
+                    failure:function(data)
+                    {
+                        var div = document.getElementById("selection1")
+                        div.innerHTML = '<option>Error</option>'
+                    }
+                })
+            })
+
+            function nodeScriptReplace(node) {
+                if ( nodeScriptIs(node) === true ) {
+                    node.parentNode.replaceChild( nodeScriptClone(node) , node );
+                }
+                else {
+                    var i        = 0;
+                    var children = node.childNodes;
+                    while ( i < children.length ) {
+                        nodeScriptReplace( children[i++] );
+                    }
+                }
+
+                return node;
+            }
+            function nodeScriptIs(node) {
+                return node.tagName === 'SCRIPT';
+            }
+            function nodeScriptClone(node){
+                var script  = document.createElement("script");
+                script.text = node.innerHTML;
+                for( var i = node.attributes.length-1; i >= 0; i-- ) {
+                    script.setAttribute( node.attributes[i].name, node.attributes[i].value );
+                }
+                return script;
+            }
+
+            function getUsername()
+            {
+                return "{{user.username}}";
+            }
+
+
+            function getSelectedPluginData()
+            {
+
+                var div = document.getElementById("plugin-data")
+                div.innerHTML = ''
+                $.ajax({
+                    type: 'get',
+                    url: '/api/plugins/' + document.getElementById("selection1").value,
+                    processData:false,
+                    success: function(data){
+                        data = JSON.parse(data)
+                        if (!data['result']){
+                            var div = document.getElementById("plugin-data")
+                            div.innerHTML = '<div class="alert alert-danger"><strong>Something Failed!</strong> Error: ' + data['msg'] + '</div>'
+                        }
+                        else
+                        {
+                            var div = document.getElementById("plugin-data")
+                            div.name = document.getElementById("selection1").value
+                            div.innerHTML = data['html']
+                            nodeScriptReplace(document.getElementById("plugin-data"));
+                        }
+                    },
+                    failure: function(data){
+                        var div = document.getElementById("plugin-data")
+                        div.innerHTML = '<div class="alert alert-danger"><strong>Something Failed!</strong> Error: ' + data + '</div>'
+                    }
+                })
+            }
+
+            function friendRequestsModal()
+            {
+
+                var div = document.getElementById("friendRequestsList")
+                div.innerHTML = 'Loading...'
+
+                var div = document.getElementById("friendRequestsAlertZone")
+                div.innerHTML = ''
+                $.ajax({
+                    type: 'get',
+                    url: '/api/friends/friend_requests/' + getUsername(),
+                    processData:false,
+                    success:function(data)
+                    {
+                        var result = '';
+                        data = JSON.parse(data)
+                        data = data['data']
+                        counter = 0
+                        for (x in data){
+                            result += '<div class="panel-group"><div class="panel panel-default"><div class="panel-heading"><h4 class="panel-title"><a data-toggle="collapse" href="#friendsRequestsModal' + counter + '"'
+                                + ' id="idForFriendRequestList' + counter + '">' +
+                                data[x].name + '</a></h4></div><div id="friendsRequestsModal' + counter + '" class="panel-collapse collapse"><div class="panel-body">Email:' + data[x].email + '</div>'+
+                                '<button type="button" class="btn btn-default" data-toggle="collapse" href="#friendsRequestsModal' + counter + '"  onclick="acceptFriendRequest(\'idForFriendRequestList' + counter + '\')">Accept</button>' +
+                                '<button type="button" class="btn btn-default" data-toggle="collapse" href="#friendsRequestsModal' + counter + '" onclick="rejectFriendRequest(\'idForFriendRequestList'+counter + '\')">Reject</button>' +
+                                '</div></div><br>'
+                            counter += 1
+                        }
+                        var div = document.getElementById("friendRequestsList")
+                        div.innerHTML = result
+                    },
+                    failure:function(data)
+                    {
+                        var div = document.getElementById("friendRequestsList")
+                        div.innerHTML = 'Error'
+                    }
+
+                })
+            }
+
+            function acceptFriendRequest(modalId)
+            {
+                var div = document.getElementById(modalId)
+                div = div.innerHTML
+                data = {user: div}
+                var div = document.getElementById("friendRequestsAlertZone")
+                div.innerHTML = ''
+                $.ajax({
+                    type: 'put',
+                    url: '../api/friends/accept_request/' + getUsername(),
+                    data: JSON.stringify(data),
+                    processData:false,
+                    success:function(data){
+                        data = JSON.parse(data)
+                        if (data == "OK")
+                        {
+                            var div = document.getElementById("friendRequestsAlertZone")
+                            div.innerHTML = '<div class="alert alert-success"><strong>Success!</strong> The request has been accepted!</div>'
+                            document.getElementById(modalId).style.visibility = "hidden";
+                        }
+                        else
+                        {
+                            var div = document.getElementById("friendRequestsAlertZone")
+                            div.innerHTML = '<div class="alert alert-danger"><strong>Something Failed!</strong> Error: ' + data + '</div>'
+                            document.getElementById(modalId).style.visibility = "hidden";
+                        }
+                    },
+                    failure:function(error){
+                        var div = document.getElementById("friendRequestsAlertZone")
+                        div.innerHTML = '<div class="alert alert-danger"><strong>Request Failed!</strong> Error: ' + error + '</div>'
+                    }
+                });
+            }
+
+            function rejectFriendRequest(modalId)
+            {
+                var div = document.getElementById(modalId)
+                div = div.innerHTML
+                data = {user: div}
+                var div = document.getElementById("friendRequestsAlertZone")
+                div.innerHTML = ''
+                $.ajax({
+                    type: 'put',
+                    url: '../api/friends/reject_request/' + getUsername(),
+                    data: JSON.stringify(data),
+                    processData:false,
+                    success:function(data){
+                        data = JSON.parse(data)
+                        if (data == "OK")
+                        {
+                            var div = document.getElementById("friendRequestsAlertZone")
+                            div.innerHTML = '<div class="alert alert-success"><strong>Success!</strong> The request has been rejected!</div>'
+                            document.getElementById(modalId).style.visibility = "hidden";
+                        }
+                        else
+                        {
+                            var div = document.getElementById("friendRequestsAlertZone")
+                            div.innerHTML = '<div class="alert alert-danger"><strong>Something Failed!</strong> Error: ' + data + '</div>'
+                            document.getElementById(modalId).style.visibility = "hidden";
+                        }
+                    },
+                    failure:function(error){
+                        var div = document.getElementById("friendRequestsAlertZone")
+                        div.innerHTML = '<div class="alert alert-danger"><strong>Request Failed!</strong> Error: ' + error + '</div>'
+                    }
+                });
+            }
+
+            function removeFriend(modalId)
+            {
+                var div = document.getElementById(modalId)
+                div = div.innerHTML
+                data = {user: div}
+                $.ajax({
+                    type: 'put',
+                    url: '../api/friends/remove/' + getUsername(),
+                    data: JSON.stringify(data),
+                    processData:false,
+                    success:function(data){
+                        data = JSON.parse(data)
+                        if (data == "OK")
+                        {
+                            document.getElementById(modalId).style.visibility = "hidden";
+                        }
+                    }
+                });
+            }
+
+            function viewFriendsModal()
+            {
+                var div = document.getElementById("viewFriendsList")
+                div.innerHTML = 'Loading...'
+
+                $.ajax({
+                    type: 'get',
+                    url: '/api/friends/view/' + getUsername(),
+                    processData:false,
+                    success:function(data)
+                    {
+                        var result = '';
+                        data = JSON.parse(data)
+                        data = data['data']
+                        counter = 0
+                        for (x in data){
+                            result += '<div class="panel-group"><div class="panel panel-default"><div class="panel-heading"><h4 class="panel-title"><a data-toggle="collapse" href="#viewFriendsModal' + counter + '" ' +
+                                ' id="idForViewFriend' + counter + '">' +
+                                data[x].name + '</a></h4></div><div id="viewFriendsModal' + counter + '" class="panel-collapse collapse"><div class="panel-body">Email:' + data[x].email +
+                                '</div>' +
+                                '<button type="button" class="btn btn-default" data-toggle="collapse" href="#viewFriendsModal' + counter + '" onclick="removeFriend(\'idForViewFriend'+counter + '\')">Remove</button>'
+                                + '</div></div><br>'
+                            counter += 1
+                        }
+                        var div = document.getElementById("viewFriendsList")
+                        div.innerHTML = result
+                    },
+                    failure:function(data)
+                    {
+                        var div = document.getElementById("viewFriendsList")
+                        div.innerHTML = 'Error'
+                    }
+
+                })
+            }
+            function addFriendsModal()
+            {
+                var div = document.getElementById("addFriendsAlertZone")
+                div.innerHTML = ''
+            }
+
+            function sendFriendRequest(){
+                var div = document.getElementById("addFriendsAlertZone")
+                div.innerHTML = ''
+                var emailAddress = document.getElementById("emAddress").value
+                var data = {email: emailAddress}
+                var regexVerifier = new RegExp("^[A-Za-z0-9.@!#$%_]+$")
+                if (regexVerifier.test(emailAddress) == false)
+                {
+                    var div = document.getElementById("addFriendsAlertZone")
+                    div.innerHTML = '<div class="alert alert-warning"><strong>Warning!</strong> Invalid email!</div>'
+                }
+                else{
+                    $.ajax({
+                        type: 'put',
+                        url: '../api/friends/send_request/' + getUsername(),
+                        data: JSON.stringify(data),
+                        processData:false,
+                        success:function(data){
+                            data = JSON.parse(data)
+                            if (data == "OK")
+                            {
+                                var div = document.getElementById("addFriendsAlertZone")
+                                div.innerHTML = '<div class="alert alert-success"><strong>Success!</strong> The request has been send!</div>'
+                            }
+                            else
+                            {
+                                var div = document.getElementById("addFriendsAlertZone")
+                                div.innerHTML = '<div class="alert alert-danger"><strong>Something Failed!</strong> Error: ' + data + '</div>'
+                            }
+                        },
+                        failure:function(error){
+                            var div = document.getElementById("addFriendsAlertZone")
+                            div.innerHTML = '<div class="alert alert-danger"><strong>Request Failed!</strong> Error: ' + error + '</div>'
+                        }
+                    });
+                }
+            }
+
+            function deletePlugin(pluginName, elementId){
+                var regexVerifier = new RegExp("^[A-Za-z0-9.@!#$%_]+$");
+                var requestLink = '/api/plugins/' + pluginName;
+                if (regexVerifier.test(pluginName) == false)
+                {
+                    window.alert('Plugin name has invalid format');
+                }
+                else{
+                    $.ajax({
+                        type: 'delete',
+                        url: requestLink,
+                        processData:false,
+                        contentType: false,
+                        success:function(data){
+                            if (data === "OK")
+                            {
+                                window.confirm('Plugin successfully deleted');
+                                setTimeout(function(){}, 2)
+                                location.reload()
+                            }
+                            else
+                            {
+                                window.alert(data);
+                            }
+                        },
+                        failure:function(error){
+                            window.alert(error);
+                        }
+                    });
+                }
+            }
+
+            function loadViewPlugins()
+            {
+                $.ajax({
+                    type: 'get',
+                    url: '/api/plugins',
+                    processData:false,
+                    success:function(data)
+                    {
+                        var result = '';
+                        data = JSON.parse(data)
+                        data = data['data']
+                        counter = 0
+                        for (x in data){
+                            var temp = '<div class="panel-group"><div class="panel panel-default"><div class="panel-heading"><h4 class="panel-title"><a data-toggle="collapse" href="#collapse' + counter + '">' +
+                                data[x].name + '</a></h4></div><div id="collapse' + counter + '" class="panel-collapse collapse"><div class="panel-body">Description:' + data[x].description + '</div>' +
+                                '<div class="panel-footer"><button type="button" class="btn btn-danger" onclick="deletePlugin(\'' + data[x].name + '\', ' + '\'collapse' + counter + '\')">Delete</button></div></div></div><br>'
+                            result += temp
+                            counter += 1
+                        }
+                        console.log(result)
+                        var div = document.getElementById("pluginsViewList")
+                        div.innerHTML = result
+                    },
+                    failure:function(data)
+                    {
+                        var div = document.getElementById("pluginsViewList")
+                        div.innerHTML = 'Error'
+                    }
+
+                })
+            }
+
+            function addPluginModalLoad()
+            {
+                var div = document.getElementById("alertZone")
+                div.innerHTML = ''
+            }
+            function submitPlugin(){
+                var pluginName = document.getElementById("plname").value
+                var description = document.getElementById("pldesc").value
+                var files = document.getElementById("file_input")
+                var file = files.files[0]
+                var formData = new FormData()
+                formData.append('file_upload', file)
+                formData.append('name', pluginName)
+                formData.append('desc', description)
+                var data = {name: pluginName, desc: description}
+                var regexVerifier = new RegExp("^[A-Za-z0-9.@!#$%_]+$")
+                var requestLink = '/api/plugins/' + pluginName + '/upload/new_plugin'
+                if (regexVerifier.test(pluginName) == false)
+                {
+                    var div = document.getElementById("alertZone")
+                    div.innerHTML = '<div class="alert alert-warning"><strong>Warning!</strong> Invalid data in required fields!</div>'
+                }
+                else{
+                    $.ajax({
+                        type: 'post',
+                        url: requestLink,
+                        data: formData,
+                        beforeSend: function(request) {
+                            request.setRequestHeader('description', description)
+                        },
+                        processData:false,
+                        contentType: false,
+                        success:function(data){
+                            if (data === "OK")
+                            {
+                                var div = document.getElementById("alertZone")
+                                div.innerHTML = '<div class="alert alert-success"><strong>Success!</strong> The file has been uploaded!</div>'
+                                setTimeout(function(){}, 2)
+                                location.reload()
+                            }
+                            else
+                            {
+                                var div = document.getElementById("alertZone")
+                                div.innerHTML = '<div class="alert alert-danger"><strong>Something Failed!</strong> Error: ' + data + '</div>'
+                            }
+                        },
+                        failure:function(error){
+                            var div = document.getElementById("alertZone")
+                            div.innerHTML = '<div class="alert alert-danger"><strong>Something Failed!</strong> Error: ' + error + '</div>'
+                        }
+                    });
+                }
+            }
+            // $('#addPlugin').modal({
+            //   backdrop: 'static',
+            //   keyboard: false
+            // })
+            $("#arctip").tooltip({
+                placement: "top"
+            });
+
+            function appendHtml(id, el, str) {
+                var div = document.getElementById(id);
+                div.innerHTML = str;
+            }    // var origin2 = new Object();
+            // origin2.lat_ = origin['lat'];
+
+            // origin2.lat = function() {
+            //   return this.lat_;
+            // }
+
+            // origin2.lng_ = origin['lng'];
+
+            // origin2.lng = function() {
+            //   return this.lng_;
+            // }
+
+            function getDoc(){
+                console.log("function getDoc()");
+
+                console.log(origin2);
+                if (origin2)
+                {
+                    temp = {lat: origin2.lat(), lng: origin2.lng()}
+                }
+                else
+                {
+                    temp = {lat: origin.lat, lng: origin.lng}
+                }
+                $.post('/gba/temp', temp, function(response){
+                    // document.getElementById("plugin-data").innerHtml = response;
+                    // console.log("data");
+                    // alert(response);
+                    appendHtml("plugin-data", document.body, response);
+                });
+            }
+            // Note: This example requires that you consent to location sharing when
+            // prompted by your browser. If you see the error "The Geolocation service
+            // failed.", it means you probably did not give permission for the browser to
+            // locate you.
+            function initMap(zoom_ = 17) {
+                // sharinglocation();
+                map = new google.maps.Map(document.getElementById('map'), {
+                    center: {lat: -34.397, lng: 150.644},
+                    zoom: zoom_
+                });
+                infoWindow = new google.maps.InfoWindow;
+
+
+                // Try HTML5 geolocation.
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(function(position) {
+                        var pos = {
+                            lat: position.coords.latitude,
+                            lng: position.coords.longitude
+                        };
+                        origin.lat = pos.lat;
+                        origin.lng = pos.lng;
+                        map.addListener('dblclick', function(event) {
+                            addMarker(event.latLng);
+                        });
+
+                        infoWindow.setPosition(pos);
+                        infoWindow.setContent('{{user.username}}');
+                        infoWindow.open(map);
+                        map.setCenter(pos);
+                    }, function() {
+                     var pos = {
+                            lat: 47.1738648,
+                            lng: 27.5750355
+                        };
+                        origin.lat = pos.lat;
+                        origin.lng = pos.lng;
+                        map.addListener('dblclick', function(event) {
+                            addMarker(event.latLng);
+                        });
+
+                        infoWindow.setPosition(pos);
+                        infoWindow.setContent('{{user.username}}');
+                        infoWindow.open(map);
+                        map.setCenter(pos);
+                        //handleLocationError(true, infoWindow, map.getCenter());
+                    });
+                } else {
+                    // Browser doesn't support Geolocation
+                    var pos = {
+                            lat: 47.1738648,
+                            lng: 27.5750355
+                        };
+                        origin.lat = pos.lat;
+                        origin.lng = pos.lng;
+                        map.addListener('dblclick', function(event) {
+                            addMarker(event.latLng);
+                        });
+
+                        infoWindow.setPosition(pos);
+                        infoWindow.setContent('{{user.username}}');
+                        infoWindow.open(map);
+                        map.setCenter(pos);
+                    //handleLocationError(false, infoWindow, map.getCenter());
+                }
+                var clickHandler = new ClickEventHandler(map, origin);
+            }
+            markers = []
+            function addMarkerTer(location, label){
+                var marker = new google.maps.Marker({
+                    position: location,
+                    label: label,
+                    map: map
+                });
+                markers.push(marker);
+            }
+            function addMarker(location) {
+                var marker = new google.maps.Marker({
+                    position: location,
+                    map: map
+                });
+                markers.push(marker);
+            }
+
+            var ClickEventHandler = function(map, origin) {
+                this.origin = origin;
+                this.map = map;
+                this.directionsService = new google.maps.DirectionsService;
+                this.directionsDisplay = new google.maps.DirectionsRenderer;
+                this.directionsDisplay.setMap(map);
+                this.placesService = new google.maps.places.PlacesService(map);
+                this.infowindow = new google.maps.InfoWindow;
+                this.infowindowContent = document.getElementById('infowindow-content');
+                this.infowindow.setContent(this.infowindowContent);
+
+                // Listen for clicks on the map.
+                this.map.addListener('click', this.handleClick.bind(this));
+            };
+
+            ClickEventHandler.prototype.handleClick = function(event) {
+                console.log('You clicked on: ' + event.latLng);
+                origin2 = event.latLng
+                // origin2.lat = myvar.lat();
+                // origin2.lng = myvar.lng();
+                // If the event has a placeId, use it.
+                if (event.placeId) {
+                    console.log('You clicked on place:' + event.placeId);
+
+                    // Calling e.stop() on the event prevents the default info window from
+                    // showing.
+                    // If you call stop here when there is no placeId you will prevent some
+                    // other map click event handlers from receiving the event.
+                    event.stop();
+                    this.calculateAndDisplayRoute(event.placeId);
+                    this.getPlaceInformation(event.placeId);
+                }
+            };
+
+            ClickEventHandler.prototype.calculateAndDisplayRoute = function(placeId) {
+                var me = this;
+                this.directionsService.route({
+                    origin: this.origin,
+                    destination: {placeId: placeId},
+                    travelMode: 'WALKING'
+                }, function(response, status) {
+                    if (status === 'OK') {
+                        me.directionsDisplay.setDirections(response);
+                    } else {
+                        window.alert('Directions request failed due to ' + status);
+                    }
+                });
+            };
+
+            ClickEventHandler.prototype.getPlaceInformation = function(placeId) {
+                var me = this;
+                this.placesService.getDetails({placeId: placeId}, function(place, status) {
+                    if (status === 'OK') {
+                        $("#infowindow-content").removeClass("hidden")
+                        me.infowindow.close();
+                        me.infowindow.setPosition(place.geometry.location);
+                        me.infowindowContent.children['place-icon'].src = place.icon;
+                        me.infowindowContent.children['place-name'].textContent = place.name;
+                        me.infowindowContent.children['place-address'].textContent =
+                            place.formatted_address;
+
+                        me.infowindow.open(me.map);
+                    }
+                });
+            };
+
+            function refresh() {
+                var integer = parseInt(document.getElementById('zoom').value);
+                //          console.log(document.getElementById('zoom').value);
+                //          console.log(integer);
+                if(!integer) {
+                    integer = 17;
+                }
+                //          initMap(integer);
+                map.setZoom(integer);
+            }
+
+            function handleLocationError(browserHasGeolocation, infoWindow, pos) {
+                infoWindow.setPosition(pos);
+                infoWindow.setContent(browserHasGeolocation ?
+                                      'Error: The Geolocation service failed.' :
+                                      'Error: Your browser doesn\'t support geolocation.');
+                infoWindow.open(map);
+            }
+        </script>
+        <!-- <script async defer
+src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDXYDYmpNXAo01aw71oMT6KJXoI1aTTyvg&libraries=places&callback=initMap">
+</script> -->
+        <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDXYDYmpNXAo01aw71oMT6KJXoI1aTTyvg&libraries=places&callback=initMap" async defer></script>
+
+{% endblock %}

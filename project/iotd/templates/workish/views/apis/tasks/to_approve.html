@@ -1,0 +1,24 @@
+{% extends "base_admin.html" %}
+{% block content %}
+<form action="/tasks/toapprove" method="post">
+    {% csrf_token %}
+  <div>
+    <b>Listing tasks for Approval:</b>
+  </div>
+  <br>
+    <ol>
+  {% for task in tasks_list %}
+        <li>
+  <ul>
+    <li><a href="/">Task Name: {{task.name}}</a></li>
+    <li><a href="/">Description: {{task.description}}</a></li>
+    <li><a href="/">Location: {{task.location}}</a></li>
+    <li><a href="/">Parent Task: {{task.parent_task}}</a></li>
+  </ul>
+  <button type="submit" class="btn btn-default" style="color:green">Approve</button>
+  <button type="submit" class="btn btn-default" style="color:blue">Decline</button>
+        </li>
+        {% endfor %}
+    </ol>
+</form>
+{% endblock %}

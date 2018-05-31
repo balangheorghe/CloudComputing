@@ -1,0 +1,27 @@
+{% extends "base_admin.html" %}
+{% block content %}
+<form action="/tasks/create" method="post">
+    {% csrf_token %}
+  <div>
+    <b>Create new Task</b>
+  </div>
+  <br>
+  <div class="form-group">
+    <label for="name">Task Name:</label>
+    <input type="text" class="form-control" id="name" name="name">
+  </div>
+  <div class="form-group">
+    <label for="description">Description:</label>
+    <input type="text" class="form-control" id="description" name="description">
+  </div>
+  <div class="form-group">
+    <label for="location">Location:</label>
+    <input type="text" class="form-control" id="location" name="location">
+  </div>
+  <div class="form-group">
+    <label for="parent_task">Parent task(string):</label>
+    <input type="text" class="form-control" id="parent_task" name="parent_task">
+  </div>
+  <button type="submit" class="btn btn-default">Submit</button>
+</form>
+{% endblock %}

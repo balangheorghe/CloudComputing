@@ -1,0 +1,29 @@
+{% extends "base_admin.html" %}
+{% block content %}
+
+    {% csrf_token %}
+  <div>
+    <b>Listing users:</b>
+  </div>
+  <br>
+    <ol>
+  {% for user in user_list %}
+        <li>
+  <ul>
+      <li><a href="/">Employee ID: {{user.employee_id}}</a></li>
+    <li><a href="/">User name: {{user.username}}</a></li>
+    <li><a href="/">First Name: {{user.first_name}}</a></li>
+    <li><a href="/">Last Name: {{user.last_name}}</a></li>
+    <li><a href="/">CNP: {{user.cnp}}</a></li>
+      <li><a href="/">Email: {{user.email}}</a></li>
+      <li><a href="/">Cellphone: {{user.cellphone}}</a></li>
+      <li><a href="/">Enrollment Date: {{user.enrollment_Date}}</a></li>
+      <li><a href="/">Rating: {{user.rating}}</a></li>
+      <li><a href="/">Cache Professional Score: {{user.cache_professional_score}}</a></li>
+      <li><a href="/">Line Manager: {{user.line_manager}}</a></li>
+  </ul>
+        </li>
+  {% endfor %}
+    </ol>
+
+{% endblock %}

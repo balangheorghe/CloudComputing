@@ -1,0 +1,39 @@
+{% extends "base2.html" %}
+
+{% block content %}
+	GIGIIIIIII
+    ADR
+    {{tt}}
+    <br>
+    {{all_users}}
+    <table>
+        <tr>
+            <th>Name</th>
+            <th>Address</th>
+            <th>Img</th>
+        </tr>
+
+        {% for item in data %}
+            <tr>
+                <td>{{ item.name }}</td>
+                <td>{{ item.address }}</td>
+                <td>{{ item.img }}</td>
+            </tr>
+        {% endfor %}
+
+    </table>
+
+    <form action="/" method="post">
+        <fieldset>
+            <legend>Personal information:</legend>
+            {% csrf_token %}
+            Name:<br>
+            <input type="text" name="name" value="Name"><br>
+            Address:<br>
+            <input type="text" name="address" value="Address"><br>
+            Img:<br>
+            <input type="text" name="img" value="Img"><br><br>
+            <input type="submit" value="Submit">
+        </fieldset>
+    </form>
+{% endblock %}

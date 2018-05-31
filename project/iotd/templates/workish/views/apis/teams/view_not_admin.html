@@ -1,0 +1,21 @@
+{% extends "base2.html" %}
+{% block content %}
+
+    {% csrf_token %}
+  <div>
+    <b>Listing teams:</b>
+  </div>
+  <br>
+<ol>
+  {% for team in team_list %}
+    <li>
+  <ul>
+    <li><a href="/">Team Name: {{team.name}}</a></li>
+    <li><a href="/">Leader: {{team.leader}}</a></li>
+    <li><a href="/">Specific: {{team.specific}}</a></li>
+    <li><a href="/">Description: {{team.description}}</a></li>
+  </ul>
+    </li>
+  {% endfor %}
+</ol>
+{% endblock %}

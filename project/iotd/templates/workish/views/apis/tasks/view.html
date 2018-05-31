@@ -1,0 +1,20 @@
+{% extends "base_admin.html" %}
+{% block content %}
+    {% csrf_token %}
+  <div>
+    <b>Listing Tasks:</b>
+  </div>
+  <br>
+    <ol>
+  {% for task in tasks_list %}
+        <li>
+  <ul>
+    <li><a href="/">Task Name: {{task.name}}</a></li>
+    <li><a href="/">Description: {{task.description}}</a></li>
+    <li><a href="/">Location: {{task.location}}</a></li>
+    <li><a href="/">Parent Task: {{task.parent_task}}</a></li>
+  </ul>
+        </li>
+  {% endfor %}
+    </ol>
+{% endblock %}

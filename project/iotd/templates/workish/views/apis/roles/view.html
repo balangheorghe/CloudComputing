@@ -1,0 +1,20 @@
+{% extends "base_admin.html" %}
+{% block content %}
+    {% csrf_token %}
+  <div>
+    <b>Listing roles:</b>
+  </div>
+  <br>
+<ol>
+
+  {% for role in roles_list %}
+    <li>
+  <ul>
+    <li><a href="/">Role Name: {{role.name}}</a></li>
+    <li><a href="/">Type: {{role.type}}</a></li>
+    <li><a href="/">Description: {{role.description}}</a></li>
+  </ul>
+    </li>
+  {% endfor %}
+</ol>
+{% endblock %}
